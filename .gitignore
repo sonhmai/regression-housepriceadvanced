@@ -1,0 +1,6 @@
+.ipynb*
+venv*
+*.MF
+*.iml
+.idea
+__pycache*
