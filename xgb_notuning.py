@@ -67,12 +67,15 @@ def run_baseline_pool(encoder):
         ('dropping', transformers.RemovingFeatures(cols_removing)),
         ('PoolQC', transformers.PoolQCTransformer()),
         ('PoolArea', transformers.PoolAreaTransformer()),
-        ('GrLivArea', transformers.GrLivAreaTransformer()),
+        # ('GrLivArea', transformers.GrLivAreaTransformer()),
+        # ('AddingColRemodAfter', transformers.RemodAfterAdding()),
         # ('MSSubClass', transformers.MSSubClassTransformer()),
+        ('garage', transformers.GarageTransformer()),
+        ('remove garage yr build', transformers.RemovingFeatures(['GarageYrBlt'])),
         ('imputer', SimpleImputer(strategy='most_frequent')),
         ('encoder', encoder),
         ('scaler', StandardScaler()),
-        ('reg', XGBRegressor(learning_rate=0.15)),
+        ('reg', XGBRegressor()),
     ])
     kaggle_msg = 'xgb, removing outliers'
     run_all_steps_baseline(pipe, kaggle_msg)
@@ -82,7 +85,7 @@ def run_all_steps_baseline(pipe, kaggle_msg):
     train, test = get_data()
 
     # remove outliers
-    filter_not_outlier = np.abs(stats.zscore(train['GrLivArea'])) < 2.5
+    filter_not_outlier = np.abs(stats.zscore(train['GrLivArea'])) < 2.7
     train = train[filter_not_outlier]
 
     X_train, X_val, y_train, y_val = get_train_val(train)
@@ -93,10 +96,13 @@ def run_all_steps_baseline(pipe, kaggle_msg):
     }
     pipe.fit(X=X_train, y=y_train)
     val_pred = pipe.predict(X_val)
+    mse = mean_squared_error(y_val, val_pred)
+    rmse = np.sqrt(mse)
+    print("RMSE without log:", rmse)
     mse = mean_squared_error(np.log(y_val), np.log(val_pred))
     rmse = np.sqrt(mse)
     print("validation RMSE:", rmse)
-    # submission.submit(test. pipe, 'xgb')
+    # submission.submit(test, pipe, 'xgb')
 
 
 if __name__ == '__main__':

@@ -4,6 +4,22 @@ import numpy as np
 import pandas as pd
 
 
+class GarageTransformer(TransformerMixin):
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        """
+        impute num features with 0
+        impute categorical features with NA
+        """
+        num_cols = ['GarageYrBlt', 'GarageCars', 'GarageArea']
+        cat_cols = ['GarageType', 'GarageFinish', 'GarageQual', 'GarageCond']
+        X[num_cols] = (X[num_cols]).fillna(0)
+        X[cat_cols] = (X[cat_cols]).fillna('NA')
+        return X
+
+
 class RemovingFeatures(TransformerMixin):
     """
     removing feature missing to many values
@@ -71,6 +87,19 @@ class MSSubClassTransformer(TransformerMixin):
         drop_col = X.drop(col, axis=1)
         df = pd.concat([dummy, drop_col], axis=1)
         return df
+
+
+class RemodAfterAdding(TransformerMixin):
+    """
+    add column RemodAfter = YearRemodAdd - YearBuilt
+    YearBuilt and YearRemodAdd has no missing values
+    """
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        X['RemodAfter'] = X['YearRemodAdd'] - X['YearBuilt']
+        return X
 
 # cols to impute
 # ['LotFrontage', 'MasVnrType', 'MasVnrArea', 'BsmtQual', 'BsmtCond', 'BsmtExposure', 'BsmtFinType1', 'BsmtFinType2', 'Electrical', 'FireplaceQu', 'GarageType', 'GarageYrBlt', 'GarageFinish', 'GarageQual', 'GarageCond', 'Fence']
