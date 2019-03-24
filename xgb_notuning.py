@@ -62,9 +62,11 @@ def run_baseline_cv(encoder, kaggle_msg):
 
 
 def run_baseline_pool(encoder):
-    cols_removing = ['Alley', 'MiscFeature', 'Fence', 'FireplaceQu']
+    cols_removing = ['Id', 'Alley', 'MiscFeature', 'Fence', 'FireplaceQu']
+    cols_time = ['MoSold', 'YrSold', 'YearBuilt', 'YearRemodAdd']
+    cols_removing2 = cols_removing + cols_time
     pipe = Pipeline([
-        ('dropping', transformers.RemovingFeatures(cols_removing)),
+        ('dropping', transformers.RemovingFeatures(cols_removing2)),
         ('PoolQC', transformers.PoolQCTransformer()),
         ('PoolArea', transformers.PoolAreaTransformer()),
         # ('GrLivArea', transformers.GrLivAreaTransformer()),
@@ -72,7 +74,10 @@ def run_baseline_pool(encoder):
         # ('MSSubClass', transformers.MSSubClassTransformer()),
         ('garage', transformers.GarageTransformer()),
         ('remove garage yr build', transformers.RemovingFeatures(['GarageYrBlt'])),
-        ('imputer', SimpleImputer(strategy='most_frequent')),
+        ('impute LotFrontage 0', transformers.LotFrontageTransformer()),
+        ('impute MasVnr type and area', transformers.MasVnrTransformer()),
+        ('impute Electrical - most frequent', transformers.ElectricalTransformer()),
+        ('impute basement features', transformers.BasementTransformer()),
         ('encoder', encoder),
         ('scaler', StandardScaler()),
         ('reg', XGBRegressor()),
@@ -102,12 +107,12 @@ def run_all_steps_baseline(pipe, kaggle_msg):
     mse = mean_squared_error(np.log(y_val), np.log(val_pred))
     rmse = np.sqrt(mse)
     print("validation RMSE:", rmse)
-    # submission.submit(test, pipe, 'xgb')
+    submission.submit(test, pipe, 'xgb')
 
 
 if __name__ == '__main__':
     warnings.filterwarnings('ignore')
-    encoder = ce.OneHotEncoder()
+    encoder = ce.OneHotEncoder(handle_unknown='ignore')
     run_baseline_pool(encoder)
 
 

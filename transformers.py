@@ -4,6 +4,64 @@ import numpy as np
 import pandas as pd
 
 
+class LotFrontageTransformer(TransformerMixin):
+    """
+    replace nan in PoolArea with 0
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        values = {"LotFrontage": 0}
+        return X.fillna(value=values)
+
+
+class MasVnrTransformer(TransformerMixin):
+    """
+    replace nan in PoolArea with 0
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        values = {"MasVnrArea": 0.0, "MasVnrType": 'None'}
+        return X.fillna(value=values)
+
+
+class ElectricalTransformer(TransformerMixin):
+    """
+    replace nan in PoolArea with 0
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        values = {'Electrical': 'SBrkr'}
+        return X.fillna(value=values)
+
+
+class BasementTransformer(TransformerMixin):
+    """
+    replace nan in PoolArea with 0
+    """
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, X):
+        values = {
+            'BsmtQual': 'NA',
+            'BsmtCond': 'NA',
+            'BsmtExposure': 'NA',
+            'BsmtFinType1': 'NA',
+            'BsmtFinType2': 'NA',
+        }
+        return X.fillna(value=values)
+
+
 class GarageTransformer(TransformerMixin):
     def fit(self, X, y=None):
         return self
